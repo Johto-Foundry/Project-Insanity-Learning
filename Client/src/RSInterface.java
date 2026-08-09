@@ -217,6 +217,7 @@ public final class RSInterface {
 		prayerTab(textDrawingAreas);
 		emoteTab();
 		optionTab(textDrawingAreas);
+		clientSettings(textDrawingAreas);
 		clanChatTab(textDrawingAreas);
 		Sidebar0(textDrawingAreas);
 		friendsTab(textDrawingAreas);
@@ -1026,7 +1027,23 @@ public final class RSInterface {
         addConfigButton(915, 904, 30, 31, "/Options/SPRITE", 40, 40, "Toggle-Chat Effects", 0, 5, 171);
         addConfigButton(957, 904, 30, 31, "/Options/SPRITE", 40, 40, "Toggle-Split Private Chat", 1, 5, 287);
         addConfigButton(12464, 904, 30, 31, "/Options/SPRITE", 40, 40, "Toggle-Accept Aid", 0, 5, 427);
-        tab.totalChildren(28);
+		RSInterface settingsButton = addTabInterface(30910);
+		settingsButton.parentID = 904;
+		settingsButton.id = 30910;
+		settingsButton.type = 5;
+		settingsButton.atActionType = 1;
+		settingsButton.contentType = 0;
+		settingsButton.width = 40;
+		settingsButton.height = 40;
+		settingsButton.aByte254 = 0;
+		settingsButton.mOverInterToTrigger = -1;
+
+// Copy the exact sprites from the existing red Accept Aid button
+		settingsButton.sprite1 = interfaceCache[12464].sprite1;
+		settingsButton.sprite2 = interfaceCache[12464].sprite2;
+
+		settingsButton.tooltip = "Client Settings";
+        tab.totalChildren(29);
         int x = 0;
         int y = 2;
         tab.child(0, 905, 13 + x, 10 + y);
@@ -1057,7 +1074,27 @@ public final class RSInterface {
         tab.child(25, 152, 75, 208);
         tab.child(26, 947, 87, 212);
         tab.child(27, 149, 80, 231);
+		tab.child(28, 30910, 135, 208);
     }
+
+	public static void clientSettings(TextDrawingArea[] tda) {
+		RSInterface tab = addTabInterface(30900);
+
+		addSprite(30903, 7, "Equipment/CUSTOM");
+
+		addHoverButton(30904, "Equipment/CUSTOM", 8, 21, 21, "Close", 250, 30905, 3);
+		addHoveredButton(30905, "Equipment/CUSTOM", 9, 21, 21, 30906);
+
+		addText(30901, "Client Settings", tda, 2, 0xe4a146, false, true);
+
+		tab.totalChildren(5);
+
+		tab.child(0, 30903, 4, 20);
+		tab.child(1, 30904, 476, 29);
+		tab.child(2, 30905, 476, 29);
+		tab.child(3, 30901, 14, 30);
+		tab.child(4, 30902, 20, 70);
+	}
 	
 	public static void clanChatTab(TextDrawingArea[] tda) {
         RSInterface tab = addTabInterface(18128);
@@ -1398,7 +1435,7 @@ public final class RSInterface {
 		if(i == 2)
 			model = EntityDef.forID(j).method160();
 		if(i == 3)
-			model = client.myPlayer.method453();
+			model = Client.myPlayer.method453();
 		if(i == 4)
 			model = ItemDef.forID(j).method202(50);
 		if(i == 5)

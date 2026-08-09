@@ -3755,11 +3755,27 @@ public class Client extends RSApplet {
 						method60(15106);
 						inputTaken = true;
 						break;
+
+					case 30910:
+						if (openInterfaceID == 30900) {
+							openInterfaceID = -1;
+						} else {
+							openInterfaceID = 30900;
+							invOverlayInterfaceID = -1;
+							backDialogID = -1;
+						}
+						inputTaken = true;
+						break;
+
+					case 30904:
+						openInterfaceID = -1;
+						inputTaken = true;
+						break;
+
 					default:
 						stream.createFrame(185);
 						stream.writeWord(k);
 						break;
-
 				}
 			}
 		}
