@@ -1087,13 +1087,12 @@ public final class RSInterface {
 
 		addText(30901, "Client Settings", tda, 2, 0xe4a146, false, true);
 
-		tab.totalChildren(5);
+		tab.totalChildren(4);
 
 		tab.child(0, 30903, 4, 20);
 		tab.child(1, 30904, 476, 29);
 		tab.child(2, 30905, 476, 29);
 		tab.child(3, 30901, 14, 30);
-		tab.child(4, 30902, 20, 70);
 	}
 	
 	public static void clanChatTab(TextDrawingArea[] tda) {
