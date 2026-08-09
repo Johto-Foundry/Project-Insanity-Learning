@@ -671,13 +671,21 @@ public class ClickingButtons implements PacketType {
 			
 			case 28164: // item kept on death 
 			break;
-			
-			
+
+
 			case 152:
-			c.isRunning2 = !c.isRunning2;
-			int frame = c.isRunning2 == true ? 1 : 0;
-			c.getPA().sendFrame36(173,frame);
-			break;
+				if (c.runEnergy < 1.0) {
+					c.isRunning2 = false;
+					c.isRunning = false;
+					c.getPA().sendFrame36(173, 0);
+					break;
+				}
+
+				c.isRunning2 = !c.isRunning2;
+				c.isRunning = c.isRunning2;
+
+				c.getPA().sendFrame36(173, c.isRunning2 ? 1 : 0);
+				break;
 			
 			case 9154:
 			c.logout();

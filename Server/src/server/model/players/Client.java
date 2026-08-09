@@ -217,6 +217,15 @@ public class Client extends Player {
 			//setSidebarInterface(11, 4445); // wrench tab
 			setSidebarInterface(11, 904); // wrench tab
 			setSidebarInterface(12, 147); // run tab
+			if (runEnergy < 1.0) {
+				isRunning2 = false;
+			}
+
+			isRunning = isRunning2;
+			setNewWalkCmdIsRunning(isRunning);
+
+			getPA().sendFrame36(173, isRunning2 ? 1 : 0);
+			getPA().sendFrame126(((int) runEnergy) + "%", 149);
 			setSidebarInterface(13, -1);
 			setSidebarInterface(0, 2423);
 			sendMessage("@red@Welcome to "+Config.SERVER_NAME);

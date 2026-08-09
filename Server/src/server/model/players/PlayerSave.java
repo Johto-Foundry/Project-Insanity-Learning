@@ -118,6 +118,10 @@ public class PlayerSave
 						p.killCount = Integer.parseInt(token2);
 					} else if (token.equals("fightMode")) {
 						p.fightMode = Integer.parseInt(token2);
+					} else if (token.equals("run-energy")) {
+						p.runEnergy = Double.parseDouble(token2);
+					} else if (token.equals("run-enabled")) {
+						p.isRunning2 = Boolean.parseBoolean(token2);
 					}
 					break;
 				case 3:
@@ -291,6 +295,15 @@ public class PlayerSave
 			characterfile.newLine();
 			characterfile.write("fightMode = ", 0, 12);
 			characterfile.write(Integer.toString(p.fightMode), 0, Integer.toString(p.fightMode).length());
+			characterfile.newLine();
+			characterfile.write("run-energy = ", 0, 13);
+			characterfile.write(Double.toString(p.runEnergy), 0,
+					Double.toString(p.runEnergy).length());
+			characterfile.newLine();
+
+			characterfile.write("run-enabled = ", 0, 14);
+			characterfile.write(Boolean.toString(p.isRunning2), 0,
+					Boolean.toString(p.isRunning2).length());
 			characterfile.newLine();
 			characterfile.write("void = ", 0, 7);
 			String toWrite = p.voidStatus[0] + "\t" + p.voidStatus[1] + "\t" + p.voidStatus[2] + "\t" + p.voidStatus[3] + "\t" + p.voidStatus[4];

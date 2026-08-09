@@ -4266,7 +4266,7 @@ public class Client extends RSApplet {
 				int configId = class9_2.valueIndexArray[0][1];
 
 				// These option-tab buttons are true toggles.
-				if(k == 913 || k == 915 || k == 957 || k == 12464 || k == 152)
+				if(k == 913 || k == 915 || k == 957 || k == 12464)
 				{
 					variousSettings[configId] =
 							variousSettings[configId] == 0 ? 1 : 0;

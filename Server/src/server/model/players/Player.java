@@ -318,7 +318,8 @@ public abstract class Player {
 	public boolean forcedChatUpdateRequired, inDuel, tradeAccepted, goodTrade, inTrade, tradeRequested, tradeResetNeeded, tradeConfirmed, tradeConfirmed2, canOffer, acceptTrade, acceptedTrade;
 	public int attackAnim, animationRequest = -1,animationWaitCycles;
 	public int[] playerBonus = new int[12];
-	public boolean isRunning2 = true;
+	public boolean isRunning2 = false;
+	public double runEnergy = 100.0;
 	public boolean takeAsNote;
 	public int combatLevel;
 	public boolean saveFile = false;
@@ -737,14 +738,25 @@ public abstract class Player {
 				
 				teleportToX = teleportToY = -1;
 				didTeleport = true;
-			} else {			
+			} else {
 				dir1 = getNextWalkingDirection();
-				if(dir1 == -1) 
+
+				Client c = (Client)this;
+
+				if (dir1 == -1) {
+					restoreRunEnergy(c);
 					return;
-				if(isRunning) {
+				}
+
+				if (isRunning && runEnergy >= 1.0) {
 					dir2 = getNextWalkingDirection();
 				}
-				Client c = (Client)this;
+
+				if (dir2 != -1) {
+					drainRunEnergy(c);
+				} else {
+					restoreRunEnergy(c);
+				}
 				//c.sendMessage("Cycle Ended");	
 				int deltaX = 0, deltaY = 0;
 				if(currentX < 2*8) {
@@ -779,6 +791,39 @@ public abstract class Player {
 			}
 	}
 
+	private void drainRunEnergy(Client c) {
+		runEnergy -= 0.70;
+
+		if (runEnergy < 1.0) {
+			runEnergy = 0;
+			isRunning2 = false;
+			isRunning = false;
+			setNewWalkCmdIsRunning(false);
+
+			c.getPA().sendFrame36(173, 0);
+		}
+
+		updateRunEnergy(c);
+	}
+
+	private void restoreRunEnergy(Client c) {
+		if (runEnergy >= 100) {
+			runEnergy = 100;
+			return;
+		}
+
+		runEnergy += 0.08;
+
+		if (runEnergy > 100) {
+			runEnergy = 100;
+		}
+
+		updateRunEnergy(c);
+	}
+
+	private void updateRunEnergy(Client c) {
+		c.getPA().sendFrame126(((int) runEnergy) + "%", 149);
+	}
 	
 	public void updateThisPlayerMovement(Stream str) {
 		synchronized(this) {
