@@ -7497,6 +7497,17 @@ public class Client extends RSApplet {
 		SpotAnim.unpackConfig(streamLoader);
 		Varp.unpackConfig(streamLoader);
 		VarBit.unpackConfig(streamLoader);
+
+		int savedBrightness = PREFS.getInt("brightnessLevel", 2);
+
+		if(savedBrightness < 1 || savedBrightness > 4) {
+			savedBrightness = 2;
+		}
+
+		variousSettings[166] = savedBrightness;
+		anIntArray1045[166] = savedBrightness;
+		method33(166);
+
 		ItemDef.isMembers = isMembers;
 		if(!lowMem)
 		{
@@ -11004,11 +11015,18 @@ public class Client extends RSApplet {
 				stream.createFrame(185);
 				stream.writeWord(button);
 				RSInterface class9_2 = RSInterface.interfaceCache[button];
-				if(class9_2.valueIndexArray != null && class9_2.valueIndexArray[0][0] == 5) {
+
+				if(class9_2.valueIndexArray != null
+						&& class9_2.valueIndexArray[0][0] == 5) {
+
 					if(variousSettings[toggle] != class9_2.anIntArray212[0]) {
 						variousSettings[toggle] = class9_2.anIntArray212[0];
 						method33(toggle);
 						needDrawTabArea = true;
+					}
+
+					if(toggle == 166) {
+						PREFS.putInt("brightnessLevel", variousSettings[166]);
 					}
 				}
 				break;
