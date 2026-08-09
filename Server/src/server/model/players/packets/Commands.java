@@ -154,12 +154,13 @@ public class Commands implements PacketType {
 					}
 				}*/
 			}
-			
-			if (playerCommand.startsWith("Test")) {
+
+			if (playerCommand.toLowerCase().startsWith("announce ")) {
 				for (int j = 0; j < Server.playerHandler.players.length; j++) {
 					if (Server.playerHandler.players[j] != null) {
-						Client c2 = (Client)Server.playerHandler.players[j];
-						c2.sendMessage("[" + c.playerName + "]: " + playerCommand.substring(7));
+						Client c2 = (Client) Server.playerHandler.players[j];
+						c2.sendMessage("[" + c.playerName + "]: "
+								+ playerCommand.substring(9));
 					}
 				}
 			}
