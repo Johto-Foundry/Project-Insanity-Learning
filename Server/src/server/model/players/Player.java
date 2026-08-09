@@ -792,7 +792,14 @@ public abstract class Player {
 	}
 
 	private void drainRunEnergy(Client c) {
-		runEnergy -= 0.70;
+		int agilityLevel = playerLevel[16];
+
+		// OSRS run energy drain formula at 0kg.
+		// Weight will be added once item weights are implemented.
+		double unitsLost = 60.0 * (1.0 - (agilityLevel / 300.0));
+
+		// OSRS uses 10,000 units; this server stores energy from 0.0 to 100.0.
+		runEnergy -= unitsLost / 100.0;
 
 		if (runEnergy < 1.0) {
 			runEnergy = 0;
@@ -812,7 +819,14 @@ public abstract class Player {
 			return;
 		}
 
-		runEnergy += 0.08;
+		int agilityLevel = playerLevel[16];
+
+		// OSRS run energy regeneration formula.
+		// Integer division intentionally makes recovery increase every 10 Agility levels.
+		double unitsRestored = (agilityLevel / 10) + 15;
+
+		// Convert OSRS's 10,000-unit scale to this server's 0.0-100.0 scale.
+		runEnergy += unitsRestored / 100.0;
 
 		if (runEnergy > 100) {
 			runEnergy = 100;

@@ -1576,10 +1576,11 @@ public final class RSInterface {
 		addText(15112, "Attack bonus", wid, 2, 0xe4a146, false, true);
 		addText(15113, "Defence bonus", wid, 2, 0xe4a146, false, true);
 		addText(15114, "Other bonuses", wid, 2, 0xe4a146, false, true);
+		addText(15115, "Weight: 0kg", wid, 1, 0xe4a146, false, true);
 		for(int i = 1675; i <= 1684; i++) { textSize(i, wid, 1); }
 		textSize(1686, wid, 1); textSize(1687, wid, 1);
 		addChar(15125);
-		tab.totalChildren(44);
+		tab.totalChildren(45);
 		tab.child(0, 15107, 4, 20);
 		tab.child(1, 15210, 476, 29);
 		tab.child(2, 15211, 476, 29);
@@ -1623,6 +1624,7 @@ public final class RSInterface {
 		tab.child(41, 1666, 321+22, 58+162);
 		tab.child(42, 1667, 321+134, 58+162);
 		tab.child(43, 1688, 50+297-2, 110-13+5);
+		tab.child(44, 15115, 390, 270);
 		for(int i = 1675; i <= 1684; i++){
 		RSInterface rsi = interfaceCache[i];
        		rsi.textColor = 0xe4a146;
