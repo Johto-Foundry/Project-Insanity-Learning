@@ -2,7 +2,10 @@ import java.applet.Applet;
 import java.awt.*;
 import java.awt.event.*;
 
+
 public class RSApplet extends Applet implements Runnable, MouseListener, MouseMotionListener, KeyListener, FocusListener, WindowListener {
+
+	public boolean middleMouseDown = false;
 
 	final void createClientFrame(int i, int j) {
 		myWidth = j;
@@ -194,20 +197,30 @@ public class RSApplet extends Applet implements Runnable, MouseListener, MouseMo
 	{
 		int i = mouseevent.getX();
 		int j = mouseevent.getY();
+
 		if(gameFrame != null)
 		{
 			i -= 4;
 			j -= 22;
 		}
+
 		idleTime = 0;
 		clickX = i;
 		clickY = j;
 		clickTime = System.currentTimeMillis();
-		if(mouseevent.isMetaDown())
+
+		if(mouseevent.getButton() == MouseEvent.BUTTON2)
+		{
+			middleMouseDown = true;
+			lastMouseX = i;
+			lastMouseY = j;
+		}
+		else if(mouseevent.getButton() == MouseEvent.BUTTON3)
 		{
 			clickMode1 = 2;
 			clickMode2 = 2;
-		} else
+		}
+		else
 		{
 			clickMode1 = 1;
 			clickMode2 = 1;
@@ -218,6 +231,11 @@ public class RSApplet extends Applet implements Runnable, MouseListener, MouseMo
 	{
 		idleTime = 0;
 		clickMode2 = 0;
+
+		if(mouseevent.getButton() == MouseEvent.BUTTON2)
+		{
+			middleMouseDown = false;
+		}
 	}
 
 	public final void mouseClicked(MouseEvent mouseevent)
@@ -239,25 +257,44 @@ public class RSApplet extends Applet implements Runnable, MouseListener, MouseMo
 	{
 		int i = mouseevent.getX();
 		int j = mouseevent.getY();
+
 		if(gameFrame != null)
 		{
 			i -= 4;
 			j -= 22;
 		}
+
 		idleTime = 0;
 		mouseX = i;
 		mouseY = j;
+
+		if(middleMouseDown)
+		{
+			int rawDragX = i - lastMouseX;
+			int rawDragY = j - lastMouseY;
+
+			smoothDragX = smoothDragX * 0.5 + rawDragX * 0.5;
+			smoothDragY = smoothDragY * 0.5 + rawDragY * 0.5;
+
+			mouseDragX += rawDragX;
+			mouseDragY += rawDragY;
+
+			lastMouseX = i;
+			lastMouseY = j;
+		}
 	}
 
 	public final void mouseMoved(MouseEvent mouseevent)
 	{
 		int i = mouseevent.getX();
 		int j = mouseevent.getY();
+
 		if(gameFrame != null)
 		{
 			i -= 4;
 			j -= 22;
 		}
+
 		idleTime = 0;
 		mouseX = i;
 		mouseY = j;
@@ -271,59 +308,59 @@ public class RSApplet extends Applet implements Runnable, MouseListener, MouseMo
 		//hotkeys here
 		if (hotKey == 508) {
 			if(i ==  KeyEvent.VK_ESCAPE){
-				client.setTab(3);
+				Client.setTab(3);
 			} else if(i == KeyEvent.VK_F1){
-				client.setTab(0);
+				Client.setTab(0);
 			} else if(i == KeyEvent.VK_F2){
-				client.setTab(1);
+				Client.setTab(1);
 			} else if(i == KeyEvent.VK_F3){
-				client.setTab(2);
+				Client.setTab(2);
 			} else if(i == KeyEvent.VK_F4){
-				client.setTab(3);
+				Client.setTab(3);
 			} else if(i == KeyEvent.VK_F5){
-				client.setTab(4);
+				Client.setTab(4);
 			} else if(i == KeyEvent.VK_F6){
-				client.setTab(5);
+				Client.setTab(5);
 			} else if(i == KeyEvent.VK_F7){
-				client.setTab(6);
+				Client.setTab(6);
 			} else if(i ==  KeyEvent.VK_F8){
-				client.setTab(7);
+				Client.setTab(7);
 			} else if(i == KeyEvent.VK_F9){
-				client.setTab(8);
+				Client.setTab(8);
 			} else if(i ==  KeyEvent.VK_F10){
-				client.setTab(9);
+				Client.setTab(9);
 			} else if(i ==  KeyEvent.VK_F11){
-				client.setTab(10);
+				Client.setTab(10);
 			} else if(i ==  KeyEvent.VK_F12){
-				client.setTab(11);
+				Client.setTab(11);
 			}
 		} else {
 			if(i ==  KeyEvent.VK_ESCAPE){
-				client.setTab(0);
+				Client.setTab(0);
 			} else if(i == KeyEvent.VK_F1){
-				client.setTab(3);
+				Client.setTab(3);
 			} else if(i == KeyEvent.VK_F2){
-				client.setTab(1);
+				Client.setTab(1);
 			} else if(i == KeyEvent.VK_F3){
-				client.setTab(2);
+				Client.setTab(2);
 			} else if(i == KeyEvent.VK_F4){
-				client.setTab(3);
+				Client.setTab(3);
 			} else if(i == KeyEvent.VK_F5){
-				client.setTab(4);
+				Client.setTab(4);
 			} else if(i == KeyEvent.VK_F6){
-				client.setTab(5);
+				Client.setTab(5);
 			} else if(i == KeyEvent.VK_F7){
-				client.setTab(6);
+				Client.setTab(6);
 			} else if(i ==  KeyEvent.VK_F8){
-				client.setTab(7);
+				Client.setTab(7);
 			} else if(i == KeyEvent.VK_F9){
-				client.setTab(8);
+				Client.setTab(8);
 			} else if(i ==  KeyEvent.VK_F10){
-				client.setTab(9);
+				Client.setTab(9);
 			} else if(i ==  KeyEvent.VK_F11){
-				client.setTab(10);
+				Client.setTab(10);
 			} else if(i ==  KeyEvent.VK_F12){
-				client.setTab(11);
+				Client.setTab(11);
 			}
 		}
 		//end of hotkeys
@@ -560,6 +597,12 @@ public class RSApplet extends Applet implements Runnable, MouseListener, MouseMo
 	int clickMode2;
 	public int mouseX;
 	public int mouseY;
+	public int lastMouseX;
+	public int lastMouseY;
+	public int mouseDragX;
+	public int mouseDragY;
+	public double smoothDragX = 0;
+	public double smoothDragY = 0;
 	private int clickMode1;
 	private int clickX;
 	private int clickY;
