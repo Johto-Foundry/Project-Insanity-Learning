@@ -4257,14 +4257,29 @@ public class Client extends RSApplet {
 		{
 			stream.createFrame(185);
 			stream.writeWord(k);
+
 			RSInterface class9_2 = RSInterface.interfaceCache[k];
-			if(class9_2.valueIndexArray != null && class9_2.valueIndexArray[0][0] == 5)
+
+			if(class9_2.valueIndexArray != null
+					&& class9_2.valueIndexArray[0][0] == 5)
 			{
-				int i2 = class9_2.valueIndexArray[0][1];
-				if(variousSettings[i2] != class9_2.anIntArray212[0])
+				int configId = class9_2.valueIndexArray[0][1];
+
+				// These option-tab buttons are true toggles.
+				if(k == 913 || k == 915 || k == 957 || k == 12464 || k == 152)
 				{
-					variousSettings[i2] = class9_2.anIntArray212[0];
-					method33(i2);
+					variousSettings[configId] =
+							variousSettings[configId] == 0 ? 1 : 0;
+
+					method33(configId);
+					needDrawTabArea = true;
+				}
+				else if(variousSettings[configId] != class9_2.anIntArray212[0])
+				{
+					// Preserve the original behaviour for every other config button.
+					variousSettings[configId] = class9_2.anIntArray212[0];
+
+					method33(configId);
 					needDrawTabArea = true;
 				}
 			}
