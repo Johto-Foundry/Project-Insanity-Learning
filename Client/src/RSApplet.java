@@ -3,8 +3,7 @@ import java.awt.*;
 import java.awt.event.*;
 
 
-public class RSApplet extends Applet implements Runnable, MouseListener, MouseMotionListener, KeyListener, FocusListener, WindowListener {
-
+public class RSApplet extends Applet implements Runnable, MouseListener, MouseMotionListener, MouseWheelListener, KeyListener, FocusListener, WindowListener {
 	public boolean middleMouseDown = false;
 
 	final void createClientFrame(int i, int j) {
@@ -28,6 +27,7 @@ public class RSApplet extends Applet implements Runnable, MouseListener, MouseMo
 	{
 		getGameComponent().addMouseListener(this);
 		getGameComponent().addMouseMotionListener(this);
+		getGameComponent().addMouseWheelListener(this);
 		getGameComponent().addKeyListener(this);
 		getGameComponent().addFocusListener(this);
 		if(gameFrame != null)
@@ -298,6 +298,26 @@ public class RSApplet extends Applet implements Runnable, MouseListener, MouseMo
 		idleTime = 0;
 		mouseX = i;
 		mouseY = j;
+	}
+
+	public final void mouseWheelMoved(MouseWheelEvent mouseWheelEvent) {
+		int x = mouseWheelEvent.getX();
+		int y = mouseWheelEvent.getY();
+
+		if(gameFrame != null) {
+			x -= 4;
+			y -= 22;
+		}
+
+		idleTime = 0;
+
+		if(this instanceof Client) {
+			((Client)this).handleMouseWheel(
+					mouseWheelEvent.getWheelRotation(),
+					x,
+					y
+			);
+		}
 	}
 	public static int hotKey = 508;
 	public final void keyPressed(KeyEvent keyevent)

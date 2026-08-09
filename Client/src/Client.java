@@ -10847,6 +10847,39 @@ public class Client extends RSApplet {
 		}
 	}
 
+	public void handleMouseWheel(int rotation, int mouseX, int mouseY) {
+		if(!loggedIn) {
+			return;
+		}
+
+		/*
+		 * Do not zoom behind banks, shops or other open interfaces.
+		 */
+		if(openInterfaceID != -1) {
+			return;
+		}
+
+		/*
+		 * Only zoom while the cursor is over the fixed 3D viewport.
+		 * This excludes the side tabs and chatbox.
+		 */
+		if(mouseX < 0 || mouseX > 516 || mouseY < 0 || mouseY > 338) {
+			return;
+		}
+
+		cameraZoom += rotation * 65;
+
+		if(cameraZoom < 150) {
+			cameraZoom = 150;
+		}
+
+		if(cameraZoom > 1500) {
+			cameraZoom = 1500;
+		}
+
+		PREFS.putInt("cameraZoom", cameraZoom);
+	}
+
 	private void method142(int i, int j, int k, int l, int i1, int j1, int k1
 	)
 	{
@@ -12191,7 +12224,8 @@ public class Client extends RSApplet {
 			if(aBooleanArray876[4] && anIntArray1203[4] + 128 > i)
 				i = anIntArray1203[4] + 128;
 			int k = minimapInt1 + anInt896 & 0x7ff;
-			setCameraPos(600 + i * 3, i, anInt1014, method42(plane, myPlayer.y, myPlayer.x) - 50, k, anInt1015);
+			setCameraPos(cameraZoom + i * 3, i, anInt1014,
+					method42(plane, myPlayer.y, myPlayer.x) - 50, k, anInt1015);
 		}
 		int j;
 		if(!aBoolean1160)
@@ -12385,6 +12419,11 @@ public class Client extends RSApplet {
 		aBoolean1159 = false;
 		aBoolean1160 = false;
 		anInt1171 = 1;
+		cameraZoom = PREFS.getInt("cameraZoom", 600);
+
+		if(cameraZoom < 150 || cameraZoom > 1500) {
+			cameraZoom = 600;
+		}
 		rememberUsername = PREFS.getBoolean("rememberUsername", false);
 
 		if(rememberUsername)
@@ -12428,6 +12467,7 @@ public class Client extends RSApplet {
 		anInt1289 = -1;
 	}
 
+	private int cameraZoom = 600;
 	public int rights;
 	public String name;
 	public String message;
