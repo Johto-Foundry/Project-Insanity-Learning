@@ -143,6 +143,98 @@ public class Commands implements PacketType {
 
 				c.sendMessage("Your health, Prayer, stats and special attack have been restored.");
 			}
+
+			if (playerCommand.equalsIgnoreCase("gear")
+					|| playerCommand.toLowerCase().startsWith("gear ")) {
+
+				String[] args = playerCommand.trim().split("\\s+");
+
+				if (args.length != 2) {
+					c.sendMessage("Use as ::gear melee, ::gear range or ::gear mage");
+					return;
+				}
+
+				String style = args[1].toLowerCase();
+
+				if (!style.equals("melee")
+						&& !style.equals("range")
+						&& !style.equals("mage")) {
+					c.sendMessage("Use as ::gear melee, ::gear range or ::gear mage");
+					return;
+				}
+
+				c.getCombat().resetPlayerAttack();
+				c.getPA().resetAutocast();
+
+				/*
+				 * Permanently delete all currently equipped items.
+				 * Inventory items are not affected.
+				 */
+				for (int slot = 0; slot < c.playerEquipment.length; slot++) {
+					if (c.playerEquipment[slot] >= 0) {
+						c.getItems().deleteEquipment(
+								c.playerEquipment[slot],
+								slot
+						);
+					}
+				}
+
+				if (style.equals("melee")) {
+					c.getItems().wearItem(10828, 1, c.playerHat);      // Helm of neitiznot
+					c.getItems().wearItem(6570, 1, c.playerCape);      // Fire cape
+					c.getItems().wearItem(6585, 1, c.playerAmulet);    // Amulet of fury
+					c.getItems().wearItem(4151, 1, c.playerWeapon);    // Abyssal whip
+					c.getItems().wearItem(11724, 1, c.playerChest);    // Bandos chestplate
+					c.getItems().wearItem(11283, 1, c.playerShield);   // Dragonfire shield
+					c.getItems().wearItem(11726, 1, c.playerLegs);     // Bandos tassets
+					c.getItems().wearItem(7462, 1, c.playerHands);     // Barrows gloves
+					c.getItems().wearItem(11732, 1, c.playerFeet);     // Dragon boots
+					c.getItems().wearItem(773, 1, c.playerRing);       // Testing ring
+
+					c.sendMessage("Melee testing loadout equipped.");
+
+				} else if (style.equals("range")) {
+					c.getItems().wearItem(11664, 1, c.playerHat);      // Void ranger helm
+					c.getItems().wearItem(10499, 1, c.playerCape);     // Ava's accumulator
+					c.getItems().wearItem(6585, 1, c.playerAmulet);    // Amulet of fury
+					c.getItems().wearItem(9185, 1, c.playerWeapon);    // Rune crossbow
+					c.getItems().wearItem(8839, 1, c.playerChest);     // Void knight top
+					c.getItems().wearItem(3842, 1, c.playerShield);    // Unholy book
+					c.getItems().wearItem(8840, 1, c.playerLegs);      // Void knight robe
+					c.getItems().wearItem(8842, 1, c.playerHands);     // Void knight gloves
+					c.getItems().wearItem(2577, 1, c.playerFeet);      // Ranger boots
+					c.getItems().wearItem(773, 1, c.playerRing);       // Testing ring
+					c.getItems().wearItem(9244, 10000, c.playerArrows);// Dragon bolts (e)
+
+					c.sendMessage("Ranged testing loadout equipped.");
+
+				} else if (style.equals("mage")) {
+					c.getItems().wearItem(10342, 1, c.playerHat);      // 3rd age mage hat
+					c.getItems().wearItem(2414, 1, c.playerCape);      // Zamorak cape
+					c.getItems().wearItem(10344, 1, c.playerAmulet);   // 3rd age amulet
+					c.getItems().wearItem(4675, 1, c.playerWeapon);    // Ancient staff
+					c.getItems().wearItem(4712, 1, c.playerChest);     // Ahrim's robetop
+					c.getItems().wearItem(6889, 1, c.playerShield);    // Mage's book
+					c.getItems().wearItem(4714, 1, c.playerLegs);      // Ahrim's robeskirt
+					c.getItems().wearItem(7462, 1, c.playerHands);     // Barrows gloves
+					c.getItems().wearItem(6920, 1, c.playerFeet);      // Infinity boots
+					c.getItems().wearItem(773, 1, c.playerRing);       // Testing ring
+
+					// Ice Barrage supplies.
+					c.getItems().addItem(560, 10000); // Death runes
+					c.getItems().addItem(565, 10000); // Blood runes
+					c.getItems().addItem(555, 10000); // Water runes
+
+					// Switch to Ancient Magicks for the Ancient staff.
+					c.playerMagicBook = 1;
+					c.setSidebarInterface(6, 12855);
+
+					c.sendMessage("Magic testing loadout equipped.");
+				}
+
+				c.specAmount = 10.0;
+				c.getItems().addSpecialBar(c.playerEquipment[c.playerWeapon]);
+			}
 			
 			/*if (playerCommand.startsWith("task")) {
 				c.taskAmount = -1;
