@@ -301,7 +301,8 @@ public class Commands implements PacketType {
 						int newItemID = Integer.parseInt(args[1]);
 						int newItemAmount = Integer.parseInt(args[2]);
 						if ((newItemID <= 20000) && (newItemID >= 0)) {
-							c.getItems().addItem(newItemID, newItemAmount);		
+							c.getItems().addItem(newItemID, newItemAmount);
+							c.updateWeight();
 						} else {
 							c.sendMessage("No such item.");
 						}

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import server.Config;
 import server.Server;
 import server.model.items.Item;
+import server.model.items.ItemWeight;
 import server.model.npcs.NPC;
 import server.model.npcs.NPCHandler;
 import server.util.ISAACRandomGen;
@@ -794,9 +795,18 @@ public abstract class Player {
 	private void drainRunEnergy(Client c) {
 		int agilityLevel = playerLevel[16];
 
-		// OSRS run energy drain formula at 0kg.
-		// Weight will be added once item weights are implemented.
-		double unitsLost = 60.0 * (1.0 - (agilityLevel / 300.0));
+		// Clamp player weight between 0kg and 64kg for the OSRS drain formula.
+		double weight = getWeight();
+		double effectiveWeight = Math.max(0.0, Math.min(weight, 64.0));
+
+		// OSRS run energy drain formula:
+		// floor(60 + (67 * weight / 64)) * (1 - agility / 300)
+		double baseUnitsLost = Math.floor(
+				60.0 + (67.0 * effectiveWeight / 64.0)
+		);
+
+		double unitsLost = baseUnitsLost
+				* (1.0 - (agilityLevel / 300.0));
 
 		// OSRS uses 10,000 units; this server stores energy from 0.0 to 100.0.
 		runEnergy -= unitsLost / 100.0;
@@ -1716,6 +1726,39 @@ public abstract class Player {
 			hitDiff2 = damage;		
 		}
 		updateRequired = true;
+	}
+
+	public double getWeight() {
+		double weight = 0.0;
+
+		// Inventory items.
+		for (int item : playerItems) {
+			if (item > 0) {
+				// PI inventory stores item ID + 1.
+				weight += ItemWeight.getWeight(item - 1);
+			}
+		}
+
+		// Equipped items.
+		for (int item : playerEquipment) {
+			if (item > 0) {
+				// Equipment stores the real item ID.
+				weight += ItemWeight.getWeight(item);
+			}
+		}
+
+		return weight;
+	}
+
+	public void updateWeight() {
+		Client c = (Client) this;
+
+		double weight = getWeight();
+
+		c.getPA().sendFrame126(
+				"Weight: " + String.format("%.1f", weight) + "kg",
+				15115
+		);
 	}
 	
 }
