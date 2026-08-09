@@ -165,12 +165,12 @@ public class Client extends Player {
 				outStream.writeByteA(menuId);
 			}
 		}
-	}	
-	
+	}
+
 	public void initialize() {
 		synchronized (this) {
 			outStream.createFrame(249);
-			outStream.writeByteA(1);		// 1 for members, zero for free
+			outStream.writeByteA(1);
 			outStream.writeWordBigEndianA(playerId);
 			for (int j = 0; j < Server.playerHandler.players.length; j++) {
 				if (j == playerId)
@@ -226,6 +226,7 @@ public class Client extends Player {
 
 			getPA().sendFrame36(173, isRunning2 ? 1 : 0);
 			getPA().sendFrame126(((int) runEnergy) + "%", 149);
+			updateWeight();
 			setSidebarInterface(13, -1);
 			setSidebarInterface(0, 2423);
 			sendMessage("@red@Welcome to "+Config.SERVER_NAME);

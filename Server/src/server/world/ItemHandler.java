@@ -216,11 +216,13 @@ public class ItemHandler {
 						if (!c.getItems().specialCase(itemId)) {
 							if(c.getItems().addItem(i.getItemId(), i.getItemAmount())) {   
 								removeControllersItem(i, c, i.getItemId(), i.getItemX(), i.getItemY(), i.getItemAmount());
+								c.updateWeight();
 								break;
 							}
 						} else {
 							c.getItems().handleSpecialPickup(itemId);
 							removeControllersItem(i, c, i.getItemId(), i.getItemX(), i.getItemY(), i.getItemAmount());
+							c.updateWeight();
 							break;
 						}
 					} else {

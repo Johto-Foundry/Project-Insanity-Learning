@@ -934,6 +934,7 @@ public class ItemAssistant {
 
 	public boolean wearItem(int wearID, int slot) {
 		synchronized(c) {
+			System.out.println("NORMAL WEAR METHOD: " + wearID);
 			if (wearID == 773 && c.playerRights < 3) {
 				c.sendMessage("Only owner-level accounts can equip this testing ring.");
 				return false;
@@ -1163,6 +1164,10 @@ public class ItemAssistant {
 				writeBonus();
 				c.getCombat().getPlayerAnimIndex(c.getItems().getItemName(c.playerEquipment[c.playerWeapon]).toLowerCase());
 				c.getPA().requestUpdates();
+
+				System.out.println("ABOUT TO UPDATE WEIGHT: " + c.getWeight());
+				c.updateWeight();
+
 				return true;
 			} else {
 				return false;
@@ -1173,6 +1178,7 @@ public class ItemAssistant {
 
 	public void wearItem(int wearID, int wearAmount, int targetSlot) {
 		synchronized(c) {
+			System.out.println("3-ARG WEAR METHOD: " + wearID);
 			if (wearID == 773 && c.playerRights < 3) {
 				c.sendMessage("Only owner-level accounts can equip this testing ring.");
 				return;
@@ -1201,6 +1207,7 @@ public class ItemAssistant {
 				c.getCombat().getPlayerAnimIndex(c.getItems().getItemName(c.playerEquipment[c.playerWeapon]).toLowerCase());
 				c.updateRequired = true; 
 				c.setAppearanceUpdateRequired(true);
+				c.updateWeight();
 			}
 		}
 	}
@@ -1249,6 +1256,7 @@ public class ItemAssistant {
 						c.flushOutStream();
 						c.updateRequired = true; 
 						c.setAppearanceUpdateRequired(true);
+						c.updateWeight();
 					}
 				}
 			}
@@ -1414,6 +1422,7 @@ public class ItemAssistant {
 						deleteItem((c.playerItems[fromSlot]-1), fromSlot, amount);
 						resetTempItems();
 						resetBank();
+						c.updateWeight();
 						return true;
 				}
 				else if (alreadyInBank) {
@@ -1426,6 +1435,7 @@ public class ItemAssistant {
 						deleteItem((c.playerItems[fromSlot]-1), fromSlot, amount);
 						resetTempItems();
 						resetBank();
+						c.updateWeight();
 						return true;
 				} else {
 						c.sendMessage("Bank full!");
@@ -1471,7 +1481,8 @@ public class ItemAssistant {
 						}
 						resetTempItems();
 						resetBank();
-						return true;
+						c.updateWeight();
+					return true;
 				} else if (alreadyInBank) {
 						int firstPossibleSlot=0;
 						boolean itemExists = false;
@@ -1494,6 +1505,7 @@ public class ItemAssistant {
 						}
 						resetTempItems();
 						resetBank();
+						c.updateWeight();
 						return true;
 				} else {
 						c.sendMessage("Bank full!");
@@ -1537,6 +1549,7 @@ public class ItemAssistant {
 					deleteItem((c.playerItems[fromSlot]-1), fromSlot, amount);
 					resetTempItems();
 					resetBank();
+					c.updateWeight();
 					return true;
 				}
 				else if (alreadyInBank) {
@@ -1548,6 +1561,7 @@ public class ItemAssistant {
 					deleteItem((c.playerItems[fromSlot]-1), fromSlot, amount);
 					resetTempItems();
 					resetBank();
+					c.updateWeight();
 					return true;
 				} else {
 						c.sendMessage("Bank full!");
@@ -1593,6 +1607,7 @@ public class ItemAssistant {
 						}
 						resetTempItems();
 						resetBank();
+						c.updateWeight();
 						return true;
 				}
 				else if (alreadyInBank) {
@@ -1617,6 +1632,7 @@ public class ItemAssistant {
 						}
 						resetTempItems();
 						resetBank();
+						c.updateWeight();
 						return true;
 				} else {
 						c.sendMessage("Bank full!");
@@ -1639,114 +1655,115 @@ public class ItemAssistant {
 		}
 		return freeS;
 	}
-	
-	
+
+
 	public void fromBank(int itemID, int fromSlot, int amount) {
 		if (amount > 0) {
-		  if (c.bankItems[fromSlot] > 0) {
-			if (!c.takeAsNote) {
-			  if (Item.itemStackable[c.bankItems[fromSlot]-1]) {
-				if (c.bankItemsN[fromSlot] > amount) {
-				  if (addItem((c.bankItems[fromSlot]-1), amount)) {
-					c.bankItemsN[fromSlot] -= amount;
-					resetBank();
-					c.getItems().resetItems(5064);
-				  }
-				} else {
-				  if (addItem((c.bankItems[fromSlot]-1), c.bankItemsN[fromSlot])) {
-					c.bankItems[fromSlot] = 0;
-					c.bankItemsN[fromSlot] = 0;
-					resetBank();
-					c.getItems().resetItems(5064);
-				  }
-				}
-			  } else {
-				while (amount > 0) {
-				  if (c.bankItemsN[fromSlot] > 0) {
-					if (addItem((c.bankItems[fromSlot]-1), 1)) {
-					  c.bankItemsN[fromSlot] += -1;
-					  amount--;
+			if (c.bankItems[fromSlot] > 0) {
+				if (!c.takeAsNote) {
+					if (Item.itemStackable[c.bankItems[fromSlot]-1]) {
+						if (c.bankItemsN[fromSlot] > amount) {
+							if (addItem((c.bankItems[fromSlot]-1), amount)) {
+								c.bankItemsN[fromSlot] -= amount;
+								resetBank();
+								c.getItems().resetItems(5064);
+							}
+						} else {
+							if (addItem((c.bankItems[fromSlot]-1), c.bankItemsN[fromSlot])) {
+								c.bankItems[fromSlot] = 0;
+								c.bankItemsN[fromSlot] = 0;
+								resetBank();
+								c.getItems().resetItems(5064);
+							}
+						}
 					} else {
-					  amount = 0;
-					}
-				  } else {
-					amount = 0;
-				  }
-				}
-				resetBank();
-				c.getItems().resetItems(5064);
-			  }
-			} else if (c.takeAsNote && Item.itemIsNote[c.bankItems[fromSlot]]) {
-				if (c.bankItemsN[fromSlot] > amount) {
-					if (addItem(c.bankItems[fromSlot], amount)) {
-						c.bankItemsN[fromSlot] -= amount;
+						while (amount > 0) {
+							if (c.bankItemsN[fromSlot] > 0) {
+								if (addItem((c.bankItems[fromSlot]-1), 1)) {
+									c.bankItemsN[fromSlot] += -1;
+									amount--;
+								} else {
+									amount = 0;
+								}
+							} else {
+								amount = 0;
+							}
+						}
 						resetBank();
 						c.getItems().resetItems(5064);
 					}
+				} else if (c.takeAsNote && Item.itemIsNote[c.bankItems[fromSlot]]) {
+					if (c.bankItemsN[fromSlot] > amount) {
+						if (addItem(c.bankItems[fromSlot], amount)) {
+							c.bankItemsN[fromSlot] -= amount;
+							resetBank();
+							c.getItems().resetItems(5064);
+						}
+					} else {
+						if (addItem(c.bankItems[fromSlot], c.bankItemsN[fromSlot])) {
+							c.bankItems[fromSlot] = 0;
+							c.bankItemsN[fromSlot] = 0;
+							resetBank();
+							c.getItems().resetItems(5064);
+						}
+					}
 				} else {
-					if (addItem(c.bankItems[fromSlot], c.bankItemsN[fromSlot])) {
-						c.bankItems[fromSlot] = 0;
-						c.bankItemsN[fromSlot] = 0;
+					c.sendMessage("This item can't be withdrawn as a note.");
+					if (Item.itemStackable[c.bankItems[fromSlot]-1]) {
+						if (c.bankItemsN[fromSlot] > amount) {
+							if (addItem((c.bankItems[fromSlot]-1), amount)) {
+								c.bankItemsN[fromSlot] -= amount;
+								resetBank();
+								c.getItems().resetItems(5064);
+							}
+						} else {
+							if (addItem((c.bankItems[fromSlot]-1), c.bankItemsN[fromSlot])) {
+								c.bankItems[fromSlot] = 0;
+								c.bankItemsN[fromSlot] = 0;
+								resetBank();
+								c.getItems().resetItems(5064);
+							}
+						}
+					} else {
+						while (amount > 0) {
+							if (c.bankItemsN[fromSlot] > 0) {
+								if (addItem((c.bankItems[fromSlot]-1), 1)) {
+									c.bankItemsN[fromSlot] += -1;
+									amount--;
+								} else {
+									amount = 0;
+								}
+							} else {
+								amount = 0;
+							}
+						}
 						resetBank();
 						c.getItems().resetItems(5064);
 					}
 				}
-			} else {
-			  c.sendMessage("This item can't be withdrawn as a note.");
-			  if (Item.itemStackable[c.bankItems[fromSlot]-1]) {
-				if (c.bankItemsN[fromSlot] > amount) {
-				  if (addItem((c.bankItems[fromSlot]-1), amount)) {
-					c.bankItemsN[fromSlot] -= amount;
-					resetBank();
-					c.getItems().resetItems(5064);
-				  }
-				} else {
-				  if (addItem((c.bankItems[fromSlot]-1), c.bankItemsN[fromSlot])) {
-					c.bankItems[fromSlot] = 0;
-					c.bankItemsN[fromSlot] = 0;
-					resetBank();
-					c.getItems().resetItems(5064);
-				  }
-				}
-			  } else {
-				while (amount > 0) {
-				  if (c.bankItemsN[fromSlot] > 0) {
-					if (addItem((c.bankItems[fromSlot]-1), 1)) {
-					  c.bankItemsN[fromSlot] += -1;
-					  amount--;
-					} else {
-					  amount = 0;
-					}
-				  } else {
-					amount = 0;
-				  }
-				}
-				resetBank();
-				c.getItems().resetItems(5064);
-			  }
 			}
-		  }
 		}
+		c.updateWeight();
 	}
 
-  	public int itemAmount(int itemID){
+	public int itemAmount(int itemID){
 		int tempAmount=0;
-        for (int i=0; i < c.playerItems.length; i++) {
+		for (int i=0; i < c.playerItems.length; i++) {
 			if (c.playerItems[i] == itemID) {
 				tempAmount+=c.playerItemsN[i];
 			}
 		}
 		return tempAmount;
 	}
-	
-	public boolean isStackable(int itemID) {	
+
+	public boolean isStackable(int itemID) {
 		return Item.itemStackable[itemID];
 	}
-	
-	
+
+
 	/**
-	*Update Equip tab
-	**/
+	 *Update Equip tab
+	 **/
 
 	
 	public void setEquipment(int wearID, int amount, int targetSlot) {
