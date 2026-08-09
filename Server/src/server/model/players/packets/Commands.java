@@ -155,7 +155,7 @@ public class Commands implements PacketType {
 				}*/
 			}
 			
-			if (playerCommand.startsWith("sanity")) {
+			if (playerCommand.startsWith("Test")) {
 				for (int j = 0; j < Server.playerHandler.players.length; j++) {
 					if (Server.playerHandler.players[j] != null) {
 						Client c2 = (Client)Server.playerHandler.players[j];
@@ -188,8 +188,8 @@ public class Commands implements PacketType {
 				PlayerHandler.updateRunning = true;
 				PlayerHandler.updateStartTime = System.currentTimeMillis();
 			}
-			
-			/*if (playerCommand.startsWith("item") && c.playerName.equalsIgnoreCase("Sanity")) {
+
+			if (playerCommand.startsWith("item")) {
 				try {
 					String[] args = playerCommand.split(" ");
 					if (args.length == 3) {
@@ -206,7 +206,7 @@ public class Commands implements PacketType {
 				} catch(Exception e) {
 					
 				}
-			}*/
+			}
 			
 			if (playerCommand.equals("Vote")) {
 				for (int j = 0; j < Server.playerHandler.players.length; j++)

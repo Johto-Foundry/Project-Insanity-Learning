@@ -232,16 +232,18 @@ public final class ItemDef {
 			itemDef.actions = null;
 			itemDef.team = 0;
 		}
-			switch (itemDef.id) {
-				case 11722:
+		switch (itemDef.id) {
+			case 773:
+				itemDef.name = "Moderator Ring";
+				itemDef.description =
+						"A tremendously powerful ring reserved for testing.".getBytes();
+				break;
+
+			case 11722:
 				itemDef.femaleEquip1 = itemDef.maleEquip1;
 				itemDef.femaleEquip2 = itemDef.maleEquip2;
 				break;
-				
-			
-				
-				
-			}
+		}
 		/* Hardcoded items start here */
 		/**/
 		return itemDef;
