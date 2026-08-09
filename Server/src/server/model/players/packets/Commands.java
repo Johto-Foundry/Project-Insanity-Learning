@@ -131,6 +131,18 @@ public class Commands implements PacketType {
 		
 		
 		if(c.playerRights >= 3) {
+
+			if (playerCommand.equalsIgnoreCase("restore")) {
+				for (int skill = 0; skill < c.playerLevel.length; skill++) {
+					c.playerLevel[skill] = c.getPA().getLevelForXP(c.playerXP[skill]);
+					c.getPA().refreshSkill(skill);
+				}
+
+				c.specAmount = 10.0;
+				c.getItems().addSpecialBar(c.playerEquipment[c.playerWeapon]);
+
+				c.sendMessage("Your health, Prayer, stats and special attack have been restored.");
+			}
 			
 			/*if (playerCommand.startsWith("task")) {
 				c.taskAmount = -1;
