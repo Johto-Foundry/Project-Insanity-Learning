@@ -875,72 +875,108 @@ public class PlayerAssistant{
 			}		
 		}	
 	}
-	
+
 	public void giveLife() {
+		boolean hadTestingRing = c.playerRights >= 3
+				&& (c.getItems().playerHasItem(773)
+				|| c.playerEquipment[c.playerRing] == 773);
+
 		c.isDead = false;
 		c.faceUpdate(-1);
 		c.freezeTimer = 0;
-		if(c.duelStatus <= 4 && !c.getPA().inPitsWait()) { // if we are not in a duel we must be in wildy so remove items
+
+		if(c.duelStatus <= 4 && !c.getPA().inPitsWait()) {
 			if (!c.inPits && !c.inFightCaves()) {
-					c.getItems().resetKeepItems();
-				if((c.playerRights == 2 && Config.ADMIN_DROP_ITEMS) || c.playerRights != 2) {
-					if(!c.isSkulled) {	// what items to keep
+				c.getItems().resetKeepItems();
+
+				if((c.playerRights == 2 && Config.ADMIN_DROP_ITEMS)
+						|| c.playerRights != 2) {
+
+					if(!c.isSkulled) {
 						c.getItems().keepItem(0, true);
-						c.getItems().keepItem(1, true);	
+						c.getItems().keepItem(1, true);
 						c.getItems().keepItem(2, true);
-					}	
-					if(c.prayerActive[10] && System.currentTimeMillis() - c.lastProtItem > 700) {
+					}
+
+					if(c.prayerActive[10]
+							&& System.currentTimeMillis() - c.lastProtItem > 700) {
 						c.getItems().keepItem(3, true);
 					}
-					c.getItems().dropAllItems(); // drop all items
-					c.getItems().deleteAllItems(); // delete all items
-					
-					if(!c.isSkulled) { // add the kept items once we finish deleting and dropping them	
+
+					c.getItems().dropAllItems();
+					c.getItems().deleteAllItems();
+
+					if(!c.isSkulled) {
 						for (int i1 = 0; i1 < 3; i1++) {
 							if(c.itemKeptId[i1] > 0) {
 								c.getItems().addItem(c.itemKeptId[i1], 1);
 							}
 						}
-					}	
-					if(c.prayerActive[10]) { // if we have protect items 
+					}
+
+					if(c.prayerActive[10]) {
 						if(c.itemKeptId[3] > 0) {
 							c.getItems().addItem(c.itemKeptId[3], 1);
 						}
 					}
+
+					if(hadTestingRing
+							&& !c.getItems().playerHasItem(773)) {
+						c.getItems().addItem(773, 1);
+					}
 				}
+
 				c.getItems().resetKeepItems();
-			} else if (c.inPits) {
+
+			} else if(c.inPits) {
 				Server.fightPits.removePlayerFromPits(c.playerId);
 				c.pitsStatus = 1;
 			}
 		}
+
 		c.getCombat().resetPrayers();
+
 		for (int i = 0; i < 20; i++) {
 			c.playerLevel[i] = getLevelForXP(c.playerXP[i]);
 			c.getPA().refreshSkill(i);
 		}
-		if (c.pitsStatus == 1) {
+
+		if(c.pitsStatus == 1) {
 			movePlayer(2399, 5173, 0);
-		} else if(c.duelStatus <= 4) { // if we are not in a duel repawn to wildy
+
+		} else if(c.duelStatus <= 4) {
 			movePlayer(Config.RESPAWN_X, Config.RESPAWN_Y, 0);
 			c.isSkulled = false;
 			c.skullTimer = 0;
 			c.attackedPlayers.clear();
-		} else if (c.inFightCaves()) {
+
+		} else if(c.inFightCaves()) {
 			c.getPA().resetTzhaar();
-		} else { // we are in a duel, respawn outside of arena
+
+		} else {
 			Client o = (Client) Server.playerHandler.players[c.duelingWith];
+
 			if(o != null) {
 				o.getPA().createPlayerHints(10, -1);
+
 				if(o.duelStatus == 6) {
 					o.getTradeAndDuel().duelVictory();
 				}
 			}
-			movePlayer(Config.DUELING_RESPAWN_X+(Misc.random(Config.RANDOM_DUELING_RESPAWN)), Config.DUELING_RESPAWN_Y+(Misc.random(Config.RANDOM_DUELING_RESPAWN)), 0);
-			if(c.duelStatus != 6) { // if we have won but have died, don't reset the duel status.
+
+			movePlayer(
+					Config.DUELING_RESPAWN_X
+							+ Misc.random(Config.RANDOM_DUELING_RESPAWN),
+					Config.DUELING_RESPAWN_Y
+							+ Misc.random(Config.RANDOM_DUELING_RESPAWN),
+					0
+			);
+
+			if(c.duelStatus != 6) {
 				c.getTradeAndDuel().resetDuel();
 			}
 		}
+
 		//PlayerSaving.getSingleton().requestSave(c.playerId);
 		PlayerSave.saveGame(c);
 		c.getCombat().resetPlayerAttack();

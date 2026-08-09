@@ -16,6 +16,10 @@ public class DropItem implements PacketType {
 		c.getInStream().readUnsignedByte();
 		c.getInStream().readUnsignedByte();
 		int slot = c.getInStream().readUnsignedWordA();
+		if (itemId == 773) {
+			c.sendMessage("The owner testing ring cannot be dropped.");
+			return;
+		}
 		if(c.arenas()) {
 			c.sendMessage("You can't drop items inside the arena!");
 			return;

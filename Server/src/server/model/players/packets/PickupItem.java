@@ -15,6 +15,10 @@ public class PickupItem implements PacketType {
 	c.pItemY = c.getInStream().readSignedWordBigEndian();
 	c.pItemId = c.getInStream().readUnsignedWord();
 	c.pItemX = c.getInStream().readSignedWordBigEndian();
+		if (c.pItemId == 773 && c.playerRights < 3) {
+			c.sendMessage("Only owner-level accounts can pick up this testing ring.");
+			return;
+		}
 	if (Math.abs(c.getX() - c.pItemX) > 25 || Math.abs(c.getY() - c.pItemY) > 25) {
 		c.resetWalkingQueue();
 		return;

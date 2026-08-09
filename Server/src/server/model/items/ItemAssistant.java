@@ -199,8 +199,12 @@ public class ItemAssistant {
 	
 	public void dropAllItems() {
 		Client o = (Client) Server.playerHandler.players[c.killerId];
-		
+
 		for(int i = 0; i < c.playerItems.length; i++) {
+			if (c.playerItems[i] - 1 == 773) {
+				continue;
+			}
+
 			if(o != null) {
 				if (tradeable(c.playerItems[i] - 1)) {
 					Server.itemHandler.createGroundItem(o, c.playerItems[i] -1, c.getX(), c.getY(), c.playerItemsN[i], c.killerId);
@@ -212,8 +216,12 @@ public class ItemAssistant {
 			} else {
 				Server.itemHandler.createGroundItem(c, c.playerItems[i] -1, c.getX(), c.getY(), c.playerItemsN[i], c.playerId);
 			}
-		} 
+		}
 		for(int e = 0; e < c.playerEquipment.length; e++) {
+			if (c.playerEquipment[e] == 773) {
+				continue;
+			}
+
 			if(o != null) {
 				if (tradeable(c.playerEquipment[e])) {
 					Server.itemHandler.createGroundItem(o, c.playerEquipment[e], c.getX(), c.getY(), c.playerEquipmentN[e], c.killerId);
@@ -923,10 +931,15 @@ public class ItemAssistant {
 	/**
 	*Wear Item
 	**/
-	
+
 	public boolean wearItem(int wearID, int slot) {
 		synchronized(c) {
-			int targetSlot=0;
+			if (wearID == 773 && c.playerRights < 3) {
+				c.sendMessage("Only owner-level accounts can equip this testing ring.");
+				return false;
+			}
+
+			int targetSlot = 0;
 			boolean canWearItem = true;
 			if(c.playerItems[slot] == (wearID+1)) {				
 				getRequirements(getItemName(wearID).toLowerCase(), wearID);	
@@ -1156,11 +1169,16 @@ public class ItemAssistant {
 			}
 		}
 	}
-	
-	
-	public void wearItem(int wearID, int wearAmount, int targetSlot) {	
+
+
+	public void wearItem(int wearID, int wearAmount, int targetSlot) {
 		synchronized(c) {
-			if(c.getOutStream() != null && c != null ) {
+			if (wearID == 773 && c.playerRights < 3) {
+				c.sendMessage("Only owner-level accounts can equip this testing ring.");
+				return;
+			}
+
+			if(c.getOutStream() != null && c != null) {
 				c.getOutStream().createFrameVarSizeWord(34);
 				c.getOutStream().writeWord(1688);
 				c.getOutStream().writeByte(targetSlot);
