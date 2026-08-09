@@ -10864,32 +10864,120 @@ public class Client extends RSApplet {
 	}
 
 	public void handleMouseWheel(int rotation, int mouseX, int mouseY) {
-		if(!loggedIn) {
+		if (!loggedIn) {
 			return;
 		}
 
-		/*
-		 * Do not zoom behind banks, shops or other open interfaces.
-		 */
-		if(openInterfaceID != -1) {
+		// Scroll chatbox first
+		if (mouseX >= 0 && mouseX <= 516 && mouseY >= 338 && mouseY <= 503) {
+			anInt1089 -= rotation * 30;
+
+			if (anInt1089 < 0) {
+				anInt1089 = 0;
+			}
+
+			if (anInt1089 > anInt1211 - 110) {
+				anInt1089 = anInt1211 - 110;
+			}
+
+			if (anInt1089 < 0) {
+				anInt1089 = 0;
+			}
+
+			inputTaken = true;
 			return;
 		}
 
-		/*
-		 * Only zoom while the cursor is over the fixed 3D viewport.
-		 * This excludes the side tabs and chatbox.
-		 */
-		if(mouseX < 0 || mouseX > 516 || mouseY < 0 || mouseY > 338) {
+		// Scroll currently open main interface
+		if (openInterfaceID != -1) {
+			RSInterface parent = RSInterface.interfaceCache[openInterfaceID];
+
+			if (parent != null && parent.children != null) {
+				for (int i = 0; i < parent.children.length; i++) {
+					RSInterface child = RSInterface.interfaceCache[parent.children[i]];
+
+					if (child == null || child.scrollMax <= child.height) {
+						continue;
+					}
+
+					int childX = parent.childX[i];
+					int childY = parent.childY[i];
+
+					if (mouseX >= childX
+							&& mouseX <= childX + child.width
+							&& mouseY >= childY
+							&& mouseY <= childY + child.height) {
+
+						child.scrollPosition += rotation * 30;
+
+						if (child.scrollPosition < 0) {
+							child.scrollPosition = 0;
+						}
+
+						int maxScroll = child.scrollMax - child.height;
+
+						if (child.scrollPosition > maxScroll) {
+							child.scrollPosition = maxScroll;
+						}
+
+						return;
+					}
+				}
+			}
+
+			return;
+		}
+
+		// Scroll tab interface, e.g. emotes
+		if (tabInterfaceIDs[tabID] != -1) {
+			RSInterface parent = RSInterface.interfaceCache[tabInterfaceIDs[tabID]];
+
+			if (parent != null && parent.children != null) {
+				for (int i = 0; i < parent.children.length; i++) {
+					RSInterface child = RSInterface.interfaceCache[parent.children[i]];
+
+					if (child == null || child.scrollMax <= child.height) {
+						continue;
+					}
+
+					int childX = parent.childX[i] + 547;
+					int childY = parent.childY[i] + 205;
+
+					if (mouseX >= childX
+							&& mouseX <= childX + child.width
+							&& mouseY >= childY
+							&& mouseY <= childY + child.height) {
+
+						child.scrollPosition += rotation * 30;
+
+						if (child.scrollPosition < 0) {
+							child.scrollPosition = 0;
+						}
+
+						int maxScroll = child.scrollMax - child.height;
+
+						if (child.scrollPosition > maxScroll) {
+							child.scrollPosition = maxScroll;
+						}
+
+						return;
+					}
+				}
+			}
+		}
+
+		// Otherwise use wheel for camera zoom
+		if (mouseX < 0 || mouseX > 516 || mouseY < 0 || mouseY > 338) {
 			return;
 		}
 
 		cameraZoom += rotation * 65;
 
-		if(cameraZoom < 150) {
+		if (cameraZoom < 150) {
 			cameraZoom = 150;
 		}
 
-		if(cameraZoom > 1500) {
+		if (cameraZoom > 1500) {
 			cameraZoom = 1500;
 		}
 
