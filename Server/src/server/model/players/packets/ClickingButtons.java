@@ -21,7 +21,34 @@ public class ClickingButtons implements PacketType {
 			return;
 		if(c.playerRights == 3)	
 			Misc.println(c.playerName+ " - actionbutton: "+actionButtonId);
-		switch (actionButtonId){
+			switch (actionButtonId){
+			case 155: // Minimap special-attack orb
+				int weapon = c.playerEquipment[c.playerWeapon];
+				if(weapon == 4153) {
+					c.getCombat().handleGmaulPlayer();
+				} else if(weapon == 1377) {
+					if(c.getCombat().checkSpecAmount(weapon)) {
+						c.gfx0(246);
+						c.forcedChat("Raarrrrrgggggghhhhhhh!");
+						c.startAnimation(1056);
+						c.playerLevel[2] = c.getLevelForXP(c.playerXP[2])
+								+ (c.getLevelForXP(c.playerXP[2]) * 15 / 100);
+						c.getPA().refreshSkill(2);
+						c.getItems().updateSpecialBar();
+					} else {
+						c.sendMessage("You don't have the required special energy to use this attack.");
+					}
+				} else if(weapon == 4151 || weapon == 859 || weapon == 861 || weapon == 11235
+						|| weapon == 4587 || weapon == 3204 || weapon == 1249 || weapon == 1215
+						|| weapon == 1231 || weapon == 5680 || weapon == 5698 || weapon == 1305
+						|| weapon == 11694 || weapon == 11698 || weapon == 11700 || weapon == 11730
+						|| weapon == 11696 || weapon == 1434) {
+					c.usingSpecial = !c.usingSpecial;
+					c.getItems().updateSpecialBar();
+				} else {
+					c.sendMessage("This weapon does not have a special attack.");
+				}
+				break;
 			//crafting + fletching interface:
 			case 150:
 				if (c.autoRet == 0)

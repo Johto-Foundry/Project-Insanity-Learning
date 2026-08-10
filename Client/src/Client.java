@@ -9,6 +9,7 @@ import java.net.*;
 import java.lang.reflect.Method;
 import sign.signlink;
 import javax.swing.*;
+import java.text.NumberFormat;
 import java.util.prefs.Preferences;
 
 public class Client extends RSApplet {
@@ -3669,6 +3670,24 @@ public class Client extends RSApplet {
 		int i1 = menuActionCmd1[i];
 		if(l >= 2000)
 			l -= 2000;
+		if (l == 474) {
+			xpDropsEnabled = !xpDropsEnabled;
+			return;
+		}
+		if (l == 850) {
+			pushMessage("The world map is not available in this client yet.", 0, "");
+			return;
+		}
+		if (l == 851) {
+			stream.createFrame(185);
+			stream.writeWord(155);
+			return;
+		}
+		if (l == 1050) {
+			stream.createFrame(185);
+			stream.writeWord(152);
+			return;
+		}
 		if(l == 582)
 		{
 			NPC npc = npcArray[i1];
@@ -6230,6 +6249,7 @@ public class Client extends RSApplet {
 			return;
 		}
 		buildSplitPrivateChatMenu();
+		buildMinimapHudMenu();
 		anInt886 = 0;
 		anInt1315 = 0;
 		if (super.mouseX > 0 && super.mouseY > 0 && super.mouseX < 516 && super.mouseY < 338) {
@@ -7287,7 +7307,7 @@ public class Client extends RSApplet {
 		Model.method459(onDemandFetcher.getVersionCount(0), onDemandFetcher);
 		ModelDecompressor.loadModels();
 		//preloadModels();
-		if(!lowMem)
+		if(!lowMem && musicEnabled)
 		{
 			nextSong = 0;
 			try
@@ -7430,6 +7450,10 @@ public class Client extends RSApplet {
 		chatArea = new Sprite("chatarea");
 		tabArea = new Sprite("tabarea");
 		mapArea = new Sprite("maparea");
+		for (int i = 0; i < HUD_SPRITE_IDS.length; i++)
+			minimapHudSprites[HUD_SPRITE_IDS[i]] = new Sprite("HUD/" + HUD_SPRITE_IDS[i]);
+		for (int i = 0; i < xpDropSprites.length; i++)
+			xpDropSprites[i] = new Sprite("xp_drop/" + i);
 		multiOverlay = new Sprite(streamLoader_2, "overlay_multiway", 0);
 		/**/
 		mapBack = new Background(streamLoader_2, "mapback", 0);
@@ -7665,6 +7689,8 @@ public class Client extends RSApplet {
 		if(anInt1021 != 0)
 			return;
 		if(super.clickMode3 == 1) {
+			if(isMinimapHudClick(super.saveClickX, super.saveClickY))
+				return;
 			int i = super.saveClickX - 25 - 545;
 			int j = super.saveClickY - 5 - 4;
 			if(i >= 0 && j >= 0 && i < 146 && j < 151) {
@@ -7716,6 +7742,15 @@ public class Client extends RSApplet {
 				stream.writeBytes(stream.currentOffset - l);
 			}
 		}
+	}
+
+	private boolean isMinimapHudClick(int x, int y) {
+		return x >= 516 && x <= 573 && y >= 45 && y <= 79
+				|| x >= 516 && x <= 573 && y >= 89 && y <= 123
+				|| x >= 540 && x <= 597 && y >= 126 && y <= 160
+				|| x >= 699 && x <= 758 && y >= 126 && y <= 160
+				|| x >= 516 && x <= 543 && y >= 25 && y <= 52
+				|| x >= 718 && x <= 753 && y >= 24 && y <= 59;
 	}
 
 	private String interfaceIntToString(int j) {
@@ -8227,6 +8262,7 @@ public class Client extends RSApplet {
 			method146();
 		if(loadingStage == 2) {
 			drawMinimap();
+			drawMinimapHudFrameStrip();
 			aRSImageProducer_1164.drawGraphics(4, super.graphics, 545);
 		}
 		if(anInt1054 != -1)
@@ -9025,6 +9061,7 @@ public class Client extends RSApplet {
 
 	private void draw3dScreen()
 	{
+		drawXpDrops();
 		drawSplitPrivateChat();
 		if(crossType == 1)
 		{
@@ -9677,6 +9714,160 @@ public class Client extends RSApplet {
 		chatTextDrawingArea.method390(4, 0xffffff, s, loopCycle / 1000, 15);
 	}
 
+	private static final int[] HUD_SPRITE_IDS = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
+			13, 14, 22, 23, 42, 51, 52, 53, 54, 55, 56, 58, 59};
+	private final Sprite[] minimapHudSprites = new Sprite[60];
+	private final Sprite[] xpDropSprites = new Sprite[23];
+	private final int[][] xpDrops = new int[10][3];
+	private boolean xpDropsInitialised;
+	private boolean xpDropsEnabled = true;
+	private int specialEnergy = 100;
+
+	private int orbTextColor(int value) {
+		if(value >= 75) return 0x00ff00;
+		if(value >= 50) return 0xffff00;
+		if(value >= 25) return 0xff981f;
+		return 0xff0000;
+	}
+
+	private int interfaceValue(int id, int fallback) {
+		try {
+			String value = RSInterface.interfaceCache[id].message.replace("%", "").trim();
+			return Integer.parseInt(value);
+		} catch(Exception ignored) {
+			return fallback;
+		}
+	}
+
+	private void drawStatusOrb(int x, int y, int current, int maximum, int colourSprite, int iconSprite,
+			int iconOffsetX, int iconOffsetY, int textOffsetX, boolean hovered) {
+		int percent = maximum <= 0 ? 0 : Math.max(0, Math.min(100, current * 100 / maximum));
+		minimapHudSprites[hovered ? 8 : 7].drawSprite(x, y);
+		minimapHudSprites[colourSprite].drawSprite(x + 27, y + 4);
+		int originalHeight = minimapHudSprites[14].myHeight;
+		minimapHudSprites[14].myHeight = 26 - (26 * percent / 100);
+		minimapHudSprites[14].drawSprite(x + 27, y + 4);
+		minimapHudSprites[14].myHeight = originalHeight;
+		minimapHudSprites[iconSprite].drawSprite(x + iconOffsetX, y + iconOffsetY);
+		smallText.method382(orbTextColor(percent), x + textOffsetX, Integer.toString(current), y + 26, true);
+	}
+
+	private void drawMinimapHud(int xOffset) {
+		if(minimapHudSprites[7] == null)
+			return;
+		int hp = interfaceValue(4016, currentStats[3]);
+		int maxHp = Math.max(1, interfaceValue(4017, maxStats[3]));
+		int prayer = interfaceValue(4012, currentStats[5]);
+		int maxPrayer = Math.max(1, interfaceValue(4013, maxStats[5]));
+		int run = interfaceValue(149, energy);
+		drawStatusOrb(xOffset, 41, hp, maxHp, 0, 9, 33, 10, 15, super.mouseX >= 516 && super.mouseX <= 573
+				&& super.mouseY >= 45 && super.mouseY <= 79);
+		drawStatusOrb(xOffset, 85, prayer, maxPrayer, 1, 10, 30, 7, 16, super.mouseX >= 516 && super.mouseX <= 573
+				&& super.mouseY >= 89 && super.mouseY <= 123);
+		drawStatusOrb(24 + xOffset, 122, run, 100, variousSettings[173] == 1 ? 4 : 3,
+				variousSettings[173] == 1 ? 12 : 11, 34, 8, 16,
+				super.mouseX >= 540 && super.mouseX <= 597 && super.mouseY >= 126 && super.mouseY <= 160);
+
+		boolean specialHover = super.mouseX >= 699 && super.mouseX <= 758 && super.mouseY >= 126
+				&& super.mouseY <= 160;
+		minimapHudSprites[specialHover ? 56 : 42].drawSprite(183 + xOffset, 122);
+		minimapHudSprites[5].drawSprite(186 + xOffset, 125);
+		int originalSpecialOverlayHeight = minimapHudSprites[14].myHeight;
+		minimapHudSprites[14].myHeight = 27 - (specialEnergy * 27 / 100);
+		minimapHudSprites[14].drawSprite(186 + xOffset, 125);
+		minimapHudSprites[14].myHeight = originalSpecialOverlayHeight;
+		minimapHudSprites[55].drawSprite(191 + xOffset, 130);
+		smallText.method382(orbTextColor(specialEnergy), 227 + xOffset, Integer.toString(specialEnergy), 148, true);
+
+		boolean xpHover = super.mouseX >= 516 && super.mouseX <= 543 && super.mouseY >= 25
+				&& super.mouseY <= 52;
+		minimapHudSprites[xpHover ? 23 : 22].drawSprite(xOffset, 21);
+		boolean worldHover = super.mouseX >= 718 && super.mouseX <= 753 && super.mouseY >= 24
+				&& super.mouseY <= 59;
+		minimapHudSprites[worldHover ? 54 : 53].drawSprite(202 + xOffset, 20);
+	}
+
+	private int[] minimapHudFrameBackground;
+	private int[] minimapHudEdgeBackground;
+
+	private void drawMinimapHudFrameStrip() {
+		if(minimapHudFrameBackground == null) {
+			minimapHudFrameBackground = rightFrame.anIntArray315.clone();
+			minimapHudEdgeBackground = mapEdgeIP.anIntArray315.clone();
+		} else {
+			System.arraycopy(minimapHudFrameBackground, 0, rightFrame.anIntArray315, 0,
+					rightFrame.anIntArray315.length);
+			System.arraycopy(minimapHudEdgeBackground, 0, mapEdgeIP.anIntArray315, 0,
+					mapEdgeIP.anIntArray315.length);
+		}
+		rightFrame.initDrawingArea();
+		drawMinimapHud(0);
+		rightFrame.drawGraphics(4, super.graphics, 516);
+		mapEdgeIP.initDrawingArea();
+		drawMinimapHud(-3);
+		mapEdgeIP.drawGraphics(4, super.graphics, 519);
+		aRSImageProducer_1165.initDrawingArea();
+	}
+
+	private void buildMinimapHudMenu() {
+		if(!loggedIn)
+			return;
+		if(super.mouseX >= 516 && super.mouseX <= 543 && super.mouseY >= 25 && super.mouseY <= 52) {
+			menuActionName[menuActionRow] = xpDropsEnabled ? "Hide XP drops" : "Show XP drops";
+			menuActionID[menuActionRow++] = 474;
+		} else if(super.mouseX >= 540 && super.mouseX <= 597 && super.mouseY >= 126 && super.mouseY <= 160) {
+			menuActionName[menuActionRow] = variousSettings[173] == 1 ? "Turn run mode off" : "Turn run mode on";
+			menuActionID[menuActionRow++] = 1050;
+		} else if(super.mouseX >= 699 && super.mouseX <= 758 && super.mouseY >= 126 && super.mouseY <= 160) {
+			menuActionName[menuActionRow] = "Use Special Attack";
+			menuActionID[menuActionRow++] = 851;
+		} else if(super.mouseX >= 718 && super.mouseX <= 753 && super.mouseY >= 24 && super.mouseY <= 59) {
+			menuActionName[menuActionRow] = "World Map";
+			menuActionID[menuActionRow++] = 850;
+		}
+	}
+
+	private void initialiseXpDrops() {
+		if(xpDropsInitialised)
+			return;
+		for(int i = 0; i < xpDrops.length; i++)
+			xpDrops[i][0] = -1;
+		xpDropsInitialised = true;
+	}
+
+	private void addXpDrop(int skill, int amount) {
+		initialiseXpDrops();
+		if(!xpDropsEnabled)
+			return;
+		for(int i = 0; i < xpDrops.length; i++)
+			if(xpDrops[i][0] != -1)
+				xpDrops[i][2] += 18;
+		for(int i = 0; i < xpDrops.length; i++) {
+			if(xpDrops[i][0] == -1) {
+				xpDrops[i][0] = skill;
+				xpDrops[i][1] = amount;
+				xpDrops[i][2] = 0;
+				return;
+			}
+		}
+	}
+
+	private void drawXpDrops() {
+		initialiseXpDrops();
+		for(int i = 0; i < xpDrops.length; i++) {
+			if(xpDrops[i][0] < 0)
+				continue;
+			int y = 115 - xpDrops[i][2];
+			int skill = xpDrops[i][0];
+			if(skill >= 0 && skill < xpDropSprites.length && xpDropSprites[skill] != null)
+				xpDropSprites[skill].drawSprite(430, y - 13);
+			smallText.method382(0xffffff, 486, "+" + NumberFormat.getIntegerInstance().format(xpDrops[i][1]), y, true);
+			xpDrops[i][2]++;
+			if(xpDrops[i][2] > 100)
+				xpDrops[i][0] = -1;
+		}
+	}
+
 	private void drawMinimap() {
 		aRSImageProducer_1164.initDrawingArea();
 		if(anInt1021 == 2) {
@@ -9687,6 +9878,7 @@ public class Client extends RSApplet {
 				if(abyte0[i5] == 0)
 					ai[i5] = 0;
 			compass.method352(33, minimapInt1, anIntArray1057, 256, anIntArray968, 25, 0, 0, 33, 25);
+			drawMinimapHud(-29);
 			aRSImageProducer_1165.initDrawingArea();
 			return;
 		}
@@ -9788,6 +9980,7 @@ public class Client extends RSApplet {
 		}
 		DrawingArea.drawPixels(3, 78, 97, 0xffffff, 3);
 		mapBack.drawBackground(0, 0);
+		drawMinimapHud(-29);
 		aRSImageProducer_1165.initDrawingArea();
 	}
 
@@ -10205,6 +10398,10 @@ public class Client extends RSApplet {
 			chatTextDrawingArea.method382(0xffffff, j1, "Cancel", i2 + 5, true);
 		}
 		aRSImageProducer_1109.drawGraphics(171, super.graphics, 202);
+		aRSImageProducer_1113.initDrawingArea();
+		if (minimapHudSprites[58] != null)
+			minimapHudSprites[musicEnabled ? 58 : 59].drawSprite(158, 196);
+		aRSImageProducer_1113.drawGraphics(265, super.graphics, 562);
 		if(welcomeScreenRaised)
 		{
 			welcomeScreenRaised = false;
@@ -10633,6 +10830,19 @@ public class Client extends RSApplet {
 
 	private void processLoginScreenInput()
 	{
+		if (super.clickMode3 == 1 && super.saveClickX >= 720 && super.saveClickX <= 756
+				&& super.saveClickY >= 461 && super.saveClickY <= 497) {
+			musicEnabled = !musicEnabled;
+			PREFS.putBoolean("musicEnabled", musicEnabled);
+			if (musicEnabled && !lowMem) {
+				nextSong = 0;
+				songChanging = true;
+				onDemandFetcher.method558(2, nextSong);
+			} else {
+				stopMidi();
+			}
+			return;
+		}
 		if(loginScreenState == 0)
 		{
 			int i = super.myWidth / 2 - 80;
@@ -10872,7 +11082,7 @@ public class Client extends RSApplet {
 		int k1 = j * i1 + i * j1 >> 16;
 		int l1 = j * j1 - i * i1 >> 16;
 		if(l > 2500) {
-			sprite.drawSprite(((94 + k1) - sprite.anInt1444 / 2) + 4 , 83 - l1 - sprite.anInt1445 / 2 - 4);
+			sprite.drawSprite(((94 + k1) - sprite.anInt1444 / 2) + 4, 83 - l1 - sprite.anInt1445 / 2 - 4);
 		} else {
 			sprite.drawSprite(((94 + k1) - sprite.anInt1444 / 2) + 4, 83 - l1 - sprite.anInt1445 / 2 - 4);
 		}
@@ -11407,12 +11617,20 @@ public class Client extends RSApplet {
 					int k1 = inStream.readUnsignedByte();
 					int i10 = inStream.method439();
 					int l15 = inStream.readUnsignedByte();
+					int gainedXp = i10 - currentExp[k1];
+					if(currentExp[k1] > 0 && gainedXp > 0)
+						addXpDrop(k1, gainedXp);
 					currentExp[k1] = i10;
 					currentStats[k1] = l15;
 					maxStats[k1] = 1;
 					for(int k20 = 0; k20 < 98; k20++)
 						if(i10 >= anIntArray1019[k20])
 							maxStats[k1] = k20 + 2;
+					pktType = -1;
+					return true;
+
+				case 124:
+					specialEnergy = inStream.readUnsignedByte();
 					pktType = -1;
 					return true;
 
@@ -12531,7 +12749,7 @@ public class Client extends RSApplet {
 		aBoolean1141 = false;
 		aBoolean1149 = false;
 		crosses = new Sprite[8];
-		musicEnabled = true;
+		musicEnabled = PREFS.getBoolean("musicEnabled", true);
 		needDrawTabArea = false;
 		loggedIn = false;
 		canMute = false;

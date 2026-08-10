@@ -294,8 +294,14 @@ public class Client extends Player {
 	}
 	
 	public int packetSize = 0, packetType = -1;
+	private int lastSpecialOrb = -1;
 	
 	public void process() {
+		int specialPercent = Math.max(0, Math.min(100, (int) (specAmount * 10)));
+		if(specialPercent != lastSpecialOrb) {
+			lastSpecialOrb = specialPercent;
+			getPA().sendSpecialEnergy(specialPercent);
+		}
 		
 		if (wcTimer > 0 && woodcut[0] > 0) {
 			wcTimer--;

@@ -54,6 +54,16 @@ public class PlayerAssistant{
 			}
 		}
 	}
+
+	public void sendSpecialEnergy(int percent) {
+		synchronized(c) {
+			if(c.getOutStream() != null) {
+				c.getOutStream().createFrame(124);
+				c.getOutStream().writeByte(percent);
+				c.flushOutStream();
+			}
+		}
+	}
 	
 	
 	public void sendLink(String s) {
